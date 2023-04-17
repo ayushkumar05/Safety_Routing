@@ -1,28 +1,25 @@
 import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
 
-def fetch_crime_data():
-    # code to fetch crime data from CrimeMeter API
-    pass
+# Load crime data from a CSV file
+crime_data = pd.read_csv('crime_data.csv')
 
-def fetch_weather_data():
-    # code to fetch weather data from OpenWeatherMap API
-    pass
+# Select relevant features and target variable
+features = ['longitude', 'latitude', 'time_of_day']
+target = 'crime_level'
+crime_data = crime_data[features + [target]]
 
-def fetch_traffic_data():
-    # code to fetch traffic data from Google Maps API
-    pass
+# Split data into training and test sets
+train_data = crime_data.sample(frac=0.8, random_state=1)
+test_data = crime_data.drop(train_data.index)
 
-def preprocess_data():
-    # code to preprocess and combine all data sources
-    pass
+# Create RandomForestRegressor model and fit to training data
+rf_model = RandomForestRegressor(n_estimators=100, random_state=1)
+rf_model.fit(train_data[features], train_data[target])
 
-def save_data():
-    # code to save the preprocessed data to a file
-    pass
+# Generate predictions on test data
+predictions = rf_model.predict(test_data[features])
 
-if __name__ == '__main__':
-    crime_data = fetch_crime_data()
-    weather_data = fetch_weather_data()
-    traffic_data = fetch_traffic_data()
-    preprocessed_data = preprocess_data(crime_data, weather_data, traffic_data)
-    save_data(preprocessed_data)
+# Evaluate model performance on test data
+mse = ((predictions - test_data[target]) ** 2).mean()
+print(f"Mean Squared Error: {mse:.2f}")
