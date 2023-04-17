@@ -1,4 +1,5 @@
-#crime statistics
+import requests
+import json
 import joblib
 import pandas as pd
 
@@ -6,9 +7,6 @@ def load_model():
     # code to load the trained model from a file
     pass
 
-
-import requests
-import json
 
 def load_route_data(start_coords, end_coords, mode="car", api_key=None):
     """
@@ -42,6 +40,30 @@ def load_route_data(start_coords, end_coords, mode="car", api_key=None):
     }
 
     return route_data
+
+def engineer_features(crime_data, weather_data, road_data):
+    # Crime statistics features
+    crime_features = []
+    for crime_type in ["violent_crime", "property_crime", "drug_crime"]:
+        total_crime_type = sum(crime_data[crime_type])
+        crime_features.append(total_crime_type)
+        
+    # Weather report features
+    weather_features = []
+    for weather_type in ["temperature", "humidity", "precipitation"]:
+        average_weather_type = np.mean(weather_data[weather_type])
+        weather_features.append(average_weather_type)
+        
+    # Road data features
+    road_features = []
+    for road_type in ["speed_limit", "lanes", "road_condition"]:
+        average_road_type = np.mean(road_data[road_type])
+        road_features.append(average_road_type)
+        
+    # Concatenate all features into a single feature vector
+    feature_vector = crime_features + weather_features + road_features
+    
+    return feature_vector
 
 def predict_safety(route):
     # Load the pre-trained models for crime, weather, and road safety
